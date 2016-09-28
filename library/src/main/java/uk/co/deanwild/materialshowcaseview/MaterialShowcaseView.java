@@ -53,7 +53,7 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnClickLis
     private boolean mShouldRender = false; // flag to decide when we should actually render
     private boolean mRenderOverNav = false;
     private int mMaskColour;
-    private AnimationFactory mAnimationFactory;
+    protected AnimationFactory mAnimationFactory;
     protected boolean mShouldAnimate = true;
     private long mFadeDurationInMillis = ShowcaseConfig.DEFAULT_FADE_TIME;
     private Handler mHandler;
@@ -566,10 +566,13 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnClickLis
         }
     }
 
-    public void fadeIn() {
-        setVisibility(INVISIBLE);
+    public synchronized void fadeIn() {
+        if (mAnimationFactory == null) {
+            setVisibility(VISIBLE);
+        } else {
+            setVisibility(INVISIBLE);
 
-        mAnimationFactory.fadeInView(this, mFadeDurationInMillis,
+            mAnimationFactory.fadeInView(this, mFadeDurationInMillis,
                 new IAnimationFactory.AnimationStartListener() {
                     @Override
                     public void onAnimationStart() {
@@ -577,11 +580,14 @@ public class MaterialShowcaseView extends FrameLayout implements View.OnClickLis
                         notifyOnDisplayed();
                     }
                 }
-        );
+            );
+        }
     }
 
-    public void fadeOut() {
-
+    public synchronized void fadeOut() {
+        if (mAnimationFactory == null) {
+            setVisibility(GONE);
+        }
         mAnimationFactory.fadeOutView(this, mFadeDurationInMillis, new IAnimationFactory.AnimationEndListener() {
             @Override
             public void onAnimationEnd() {
